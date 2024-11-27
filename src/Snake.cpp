@@ -6,15 +6,12 @@
 #include "Game/Grid.h"
 #include "config.h"
 
-typedef Grid::GridElements SnakePart;
-
-Snake::Snake(SDL_Renderer *renderer, const char* snakeDir, int width, int height, int row, int col)
-    : WIDTH(width), HEIGHT(height), ROW(row), COL(col)
+Snake::Snake(SDL_Renderer *renderer)
 {
-    SS_CELL_H = HEIGHT / ROW;
-    SS_CELL_W = WIDTH / COL;
+    SS_CELL_H = c_snakeHeight / c_snakeRow;
+    SS_CELL_W = c_snakeWidth / c_snakeCol;
 
-    init(renderer, snakeDir);
+    init(renderer);
 }
 
 Snake::~Snake()
@@ -30,35 +27,35 @@ Snake::~Snake()
 
 void Snake::initSnakeSpriteSheet()
 {
-    snakePartsRect[SnakePart::bodyNE] = {0*SS_CELL_W, 1*SS_CELL_H, SS_CELL_W, SS_CELL_H};
-    snakePartsRect[SnakePart::bodyNW] = {2*SS_CELL_W, 2*SS_CELL_H, SS_CELL_W, SS_CELL_H};
-    snakePartsRect[SnakePart::bodyNS] = {2*SS_CELL_W, 1*SS_CELL_H, SS_CELL_W, SS_CELL_H};
-    snakePartsRect[SnakePart::bodySE] = {0*SS_CELL_W, 0*SS_CELL_H, SS_CELL_W, SS_CELL_H};
-    snakePartsRect[SnakePart::bodySW] = {2*SS_CELL_W, 0*SS_CELL_H, SS_CELL_W, SS_CELL_H};
-    snakePartsRect[SnakePart::bodyEW] = {1*SS_CELL_W, 0*SS_CELL_H, SS_CELL_W, SS_CELL_H};
+    snakePartsRect[SnakeParts::bodyNE] = {0*SS_CELL_W, 1*SS_CELL_H, SS_CELL_W, SS_CELL_H};
+    snakePartsRect[SnakeParts::bodyNW] = {2*SS_CELL_W, 2*SS_CELL_H, SS_CELL_W, SS_CELL_H};
+    snakePartsRect[SnakeParts::bodyNS] = {2*SS_CELL_W, 1*SS_CELL_H, SS_CELL_W, SS_CELL_H};
+    snakePartsRect[SnakeParts::bodySE] = {0*SS_CELL_W, 0*SS_CELL_H, SS_CELL_W, SS_CELL_H};
+    snakePartsRect[SnakeParts::bodySW] = {2*SS_CELL_W, 0*SS_CELL_H, SS_CELL_W, SS_CELL_H};
+    snakePartsRect[SnakeParts::bodyEW] = {1*SS_CELL_W, 0*SS_CELL_H, SS_CELL_W, SS_CELL_H};
 
-    snakePartsRect[SnakePart::headN] = {3*SS_CELL_W, 0*SS_CELL_H, SS_CELL_W, SS_CELL_H};
-    snakePartsRect[SnakePart::headS] = {4*SS_CELL_W, 1*SS_CELL_H, SS_CELL_W, SS_CELL_H};
-    snakePartsRect[SnakePart::headW] = {3*SS_CELL_W, 1*SS_CELL_H, SS_CELL_W, SS_CELL_H};
-    snakePartsRect[SnakePart::headE] = {4*SS_CELL_W, 0*SS_CELL_H, SS_CELL_W, SS_CELL_H};
+    snakePartsRect[SnakeParts::headN] = {3*SS_CELL_W, 0*SS_CELL_H, SS_CELL_W, SS_CELL_H};
+    snakePartsRect[SnakeParts::headS] = {4*SS_CELL_W, 1*SS_CELL_H, SS_CELL_W, SS_CELL_H};
+    snakePartsRect[SnakeParts::headW] = {3*SS_CELL_W, 1*SS_CELL_H, SS_CELL_W, SS_CELL_H};
+    snakePartsRect[SnakeParts::headE] = {4*SS_CELL_W, 0*SS_CELL_H, SS_CELL_W, SS_CELL_H};
 
     // Tail direction opposite of tail-end
-    snakePartsRect[SnakePart::tailN] = {3*SS_CELL_W, 2*SS_CELL_H, SS_CELL_W, SS_CELL_H};
-    snakePartsRect[SnakePart::tailS] = {4*SS_CELL_W, 3*SS_CELL_H, SS_CELL_W, SS_CELL_H};
-    snakePartsRect[SnakePart::tailW] = {3*SS_CELL_W, 3*SS_CELL_H, SS_CELL_W, SS_CELL_H};
-    snakePartsRect[SnakePart::tailE] = {4*SS_CELL_W, 2*SS_CELL_H, SS_CELL_W, SS_CELL_H};
+    snakePartsRect[SnakeParts::tailN] = {3*SS_CELL_W, 2*SS_CELL_H, SS_CELL_W, SS_CELL_H};
+    snakePartsRect[SnakeParts::tailS] = {4*SS_CELL_W, 3*SS_CELL_H, SS_CELL_W, SS_CELL_H};
+    snakePartsRect[SnakeParts::tailW] = {3*SS_CELL_W, 3*SS_CELL_H, SS_CELL_W, SS_CELL_H};
+    snakePartsRect[SnakeParts::tailE] = {4*SS_CELL_W, 2*SS_CELL_H, SS_CELL_W, SS_CELL_H};
 }
 
-void Snake::init(SDL_Renderer *renderer, const char* snakeDir)
+void Snake::init(SDL_Renderer *renderer)
 {
     // Initialize head and tail nodes
-    head = new Node({Grid::rows/2, Grid::cols/2}, SnakePart::headE, Direction::E);
-    tail = new Node({Grid::rows/2-2, Grid::cols/2}, SnakePart::tailE, Direction::E);
-    tail->next = new Node({Grid::rows/2-1, Grid::cols/2}, SnakePart::bodyEW, Direction::E, head);
+    head = new Node({Grid::rows/2, Grid::cols/2}, SnakeParts::headE, Direction::E);
+    tail = new Node({Grid::rows/2-2, Grid::cols/2}, SnakeParts::tailE, Direction::E);
+    tail->next = new Node({Grid::rows/2-1, Grid::cols/2}, SnakeParts::bodyEW, Direction::E, head);
     
     initSnakeSpriteSheet();
 
-    SDL_Surface* tempSurface = IMG_Load(snakeDir);
+    SDL_Surface* tempSurface = IMG_Load(c_SNAKEDIR);
     SDL_SetColorKey(tempSurface, SDL_TRUE, SDL_MapRGB(tempSurface->format, 255, 255, 255));
     snakeTexture = SDL_CreateTextureFromSurface(renderer, tempSurface);
     SDL_FreeSurface(tempSurface);
@@ -67,7 +64,7 @@ void Snake::init(SDL_Renderer *renderer, const char* snakeDir)
 
 enum Direction{N, S, E, W};
 
-void Snake::update(Direction dir, bool eaten)
+void Snake::update(Direction dir, bool& grow)
 {
     // Update head
     switch(dir){
@@ -84,27 +81,96 @@ void Snake::update(Direction dir, bool eaten)
             goEast(head);
             break;
         case Direction::SAME:
-            update(head->dir, eaten);
+            update(head->dir, grow);
             return;
     }
 
-    // Move tail node
-    if(!eaten)
-    {
+    // Move tail node if food has not been consumed
+    if(grow) {
+        grow = false;
+    } else {
         updateTailNode(tail);
     }
 }
 
 // Render method updates Grid object with Snake parts
-void Snake::render(Grid *grid)
+void Snake::render(SDL_Renderer* renderer)
 {
     Node* temp = tail;
     while(temp){
-        if(!grid->updateGrid(temp->coordinates.first, temp->coordinates.second, temp->part)){
-            SDL_Log("Encountered error with rendering snake");
-        }
+        SDL_Rect destR = {temp->coord.first*c_CELLSIZE + c_BORDERTHICKNESS, 
+                          temp->coord.second*c_CELLSIZE + c_BORDERTHICKNESS, 
+                          c_CELLSIZE, c_CELLSIZE};
+        SDL_RenderCopy(renderer, snakeTexture, &snakePartsRect[temp->part], &destR);
         temp = temp->next;
     }
+}
+
+std::pair<int, int> Snake::getHead()
+{
+    return head->coord;
+}
+
+void Snake::populateGrid(Grid *grid)
+{
+    Node* temp = tail;
+    while(temp){
+        grid->updateGrid(temp->coord.first, temp->coord.second, Grid::GridElements::snake);
+        temp = temp->next;
+    }
+}
+
+
+void Snake::goNorth(Node*& head){
+    if(head->part == SnakeParts::headS)
+    {
+        head->next = new Node({head->coord.first, (head->coord.second+1)}, SnakeParts::headS, Direction::S);
+    } 
+    else
+    {
+        head->next = new Node({head->coord.first, (head->coord.second-1)}, SnakeParts::headN, Direction::N);
+    }
+    updateBodyNode(head);
+    head = head->next;
+}
+
+void Snake::goSouth(Node*& head){
+    if(head->part == SnakeParts::headN)
+    {
+        head->next = new Node({head->coord.first, (head->coord.second-1)}, SnakeParts::headN, Direction::N);
+    } 
+    else
+    {
+        head->next = new Node({head->coord.first, (head->coord.second+1)}, SnakeParts::headS, Direction::S);
+    }
+    updateBodyNode(head);
+    head = head->next;
+}
+
+void Snake::goWest(Node*& head){
+    if(head->part == SnakeParts::headE)
+    {
+        head->next = new Node({(head->coord.first+1), head->coord.second}, SnakeParts::headE, Direction::E);
+    } 
+    else
+    {
+        head->next = new Node({(head->coord.first-1), head->coord.second}, SnakeParts::headW, Direction::W);
+    }
+    updateBodyNode(head);
+    head = head->next;
+}
+
+void Snake::goEast(Node*& head){
+    if(head->part == SnakeParts::headW)
+    {
+        head->next = new Node({(head->coord.first-1), head->coord.second}, SnakeParts::headW, Direction::W);
+    } 
+    else
+    {
+        head->next = new Node({(head->coord.first+1), head->coord.second}, SnakeParts::headE, Direction::E);
+    }
+    updateBodyNode(head);
+    head = head->next;
 }
 
 void Snake::updateBodyNode(Node*& body)
@@ -119,11 +185,11 @@ void Snake::updateBodyNode(Node*& body)
         switch(currDir){
             case Direction::N:
             case Direction::S:
-                body->part = SnakePart::bodyNS;                         // NS
+                body->part = SnakeParts::bodyNS;                         // NS
                 break;
             case Direction::W:
             case Direction::E:
-                body->part = SnakePart::bodyEW;                         // EW
+                body->part = SnakeParts::bodyEW;                         // EW
                 break;
             default:
                 break;
@@ -135,76 +201,24 @@ void Snake::updateBodyNode(Node*& body)
         if((currDir == Direction::N && nextDir == Direction::E)         // SE
             || (currDir == Direction::W && nextDir == Direction::S))
         {
-            body->part = SnakePart::bodySE;
+            body->part = SnakeParts::bodySE;
         }
         else if ((currDir == Direction::N && nextDir == Direction::W)   // SW
             || (currDir == Direction::E && nextDir == Direction::S))
         {
-            body->part = SnakePart::bodySW;
+            body->part = SnakeParts::bodySW;
         }
         else if ((currDir == Direction::S && nextDir == Direction::E)   // NE
             || (currDir == Direction::W && nextDir == Direction::N))
         {
-            body->part = SnakePart::bodyNE;
+            body->part = SnakeParts::bodyNE;
         }
         else if ((currDir == Direction::S && nextDir == Direction::W)   // NW
             || (currDir == Direction::E && nextDir == Direction::N))
         {
-            body->part = SnakePart::bodyNW;
+            body->part = SnakeParts::bodyNW;
         }
     }
-}
-
-void Snake::goNorth(Node*& head){
-    if(head->part == SnakePart::headS)
-    {
-        head->next = new Node({head->coordinates.first, (head->coordinates.second+1)}, SnakePart::headS, Direction::S);
-    } 
-    else
-    {
-        head->next = new Node({head->coordinates.first, (head->coordinates.second-1)}, SnakePart::headN, Direction::N);
-    }
-    updateBodyNode(head);
-    head = head->next;
-}
-
-void Snake::goSouth(Node*& head){
-    if(head->part == SnakePart::headN)
-    {
-        head->next = new Node({head->coordinates.first, (head->coordinates.second-1)}, SnakePart::headN, Direction::N);
-    } 
-    else
-    {
-        head->next = new Node({head->coordinates.first, (head->coordinates.second+1)}, SnakePart::headS, Direction::S);
-    }
-    updateBodyNode(head);
-    head = head->next;
-}
-
-void Snake::goWest(Node*& head){
-    if(head->part == SnakePart::headE)
-    {
-        head->next = new Node({(head->coordinates.first+1), head->coordinates.second}, SnakePart::headE, Direction::E);
-    } 
-    else
-    {
-        head->next = new Node({(head->coordinates.first-1), head->coordinates.second}, SnakePart::headW, Direction::W);
-    }
-    updateBodyNode(head);
-    head = head->next;
-}
-
-void Snake::goEast(Node*& head){
-    if(head->part == SnakePart::headW)
-    {
-        head->next = new Node({(head->coordinates.first-1), head->coordinates.second}, SnakePart::headW, Direction::W);
-    } 
-    else
-    {
-        head->next = new Node({(head->coordinates.first+1), head->coordinates.second}, SnakePart::headE, Direction::E);
-    }
-    updateBodyNode(head);
-    head = head->next;
 }
 
 void Snake::updateTailNode(Node*& tail)
@@ -214,16 +228,16 @@ void Snake::updateTailNode(Node*& tail)
     delete toDelete;
     switch(tail->next->dir){
         case Direction::N:
-            tail->part = SnakePart::tailN;
+            tail->part = SnakeParts::tailN;
             break;
         case Direction::S:
-            tail->part = SnakePart::tailS;
+            tail->part = SnakeParts::tailS;
             break;
         case Direction::W:
-            tail->part = SnakePart::tailW;
+            tail->part = SnakeParts::tailW;
             break;
         case Direction::E:
-            tail->part = SnakePart::tailE;
+            tail->part = SnakeParts::tailE;
             break;
         default:
             break;

@@ -3,6 +3,9 @@
 #include <SDL2/SDL_image.h>
 
 #include "Game/Game.h"
+#include "Game/Grid.h"
+#include "Game/Food.h"
+#include "Game/Walls.h"
 #include "config.h"
 
 Game::Game()
@@ -50,14 +53,15 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, in
 
     isRunning = true;
 
-    // Load grid
+    // Load and initialize objects
+    walls = new Walls();
     grid = new Grid();
+    snake = new Snake(renderer);
+    food = new Food(renderer);
 
-    // Load snake
-    snake = new Snake(renderer, c_SNAKEDIR, c_snakeWidth, c_snakeHeight, c_snakeRow, c_snakeCol);
+    walls->populateGrid(grid);
+    food->getNewFood(grid, snake, walls);
 
-    // Extra test shit
-    SDL_SetRenderDrawColor(renderer, c_bgColor.r, c_bgColor.b, c_bgColor.g, c_bgColor.a);   // bg color
 }
 
 void Game::handleEvents()
@@ -94,9 +98,16 @@ void Game::handleEvents()
 
 void Game::update()
 {
-    snake->update(nextDir, eaten);
-    grid->update(snake);
-    resetVariables();
+    switch(state){
+        case Game::State::playing:
+            snake->update(nextDir, grow);
+            checkFood();
+            grid->update(snake, food);
+            resetVariables();
+            break;
+        default:
+            break;
+    }
 }
 
 void Game::render()
@@ -105,8 +116,10 @@ void Game::render()
     SDL_RenderClear(renderer);
 
     // Pass in stuff to render
-    snake->render(grid);
-    grid->render(renderer, snake);
+    walls->render(renderer);
+    snake->render(renderer);
+    food->render(renderer);
+    grid->render(renderer);
 
     SDL_RenderPresent(renderer);
 }
@@ -125,6 +138,14 @@ void Game::clean()
 
 void Game::resetVariables()
 {
-    eaten = false;
     nextDir = Snake::Direction::SAME;
+}
+
+void Game::checkFood()
+{
+    if(snake->getHead() == food->coord){
+        score++;
+        food->getNewFood(grid, snake, walls);
+        grow = true;
+    }
 }

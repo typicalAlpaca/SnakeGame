@@ -5,6 +5,8 @@
 
 #include "Game/Grid.h"
 #include "Game/Snake.h"
+#include "Game/Walls.h"
+#include "Game/Food.h"
 #include "config.h"
 
 Grid::Grid()
@@ -18,76 +20,58 @@ Grid::~Grid()
 void Grid::init()
 {
     clearGrid();
-
-    // Set the snake in the center
-    grid[rows/2][cols/2] = GridElements::headE;
-    grid[rows/2][cols/2-1] = GridElements::tailE;
 }
 
-void Grid::update(Snake *snake)
+void Grid::update(Snake *snake, Food *food)
 {
     clearGrid();
+    snake->populateGrid(this);
+    food->populateGrid(this);
 }
 
-void Grid::render(SDL_Renderer *renderer, Snake *snake)
+void Grid::render(SDL_Renderer *renderer)
 {
-    // Render each cell of the grid individually
+    // Render empty cells of the grid only
     for(int row = 0; row < rows; ++row){
         for(int col = 0; col < cols; ++col){
-            SDL_Rect destR = {col*cellSize + borderWidth, row*cellSize + borderWidth, cellSize, cellSize};
-            switch(grid[row][col]){
-                case GridElements::wall:
-                    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // White       
-                    SDL_RenderFillRect(renderer, &destR);
-                    break;
-                case GridElements::empty:
-                    SDL_SetRenderDrawColor(renderer, c_bgColor.r, c_bgColor.g, c_bgColor.b, c_bgColor.a);
-                    SDL_RenderFillRect(renderer, &destR);
-                    break;
-                case GridElements::food:
-                    break;
-                case GridElements::bodyEW:
-                case GridElements::bodyNE:
-                case GridElements::bodyNS:
-                case GridElements::bodyNW:
-                case GridElements::bodySE:
-                case GridElements::bodySW:
-                case GridElements::headE:
-                case GridElements::headN:
-                case GridElements::headS:
-                case GridElements::headW:
-                case GridElements::tailE:
-                case GridElements::tailN:
-                case GridElements::tailS:
-                case GridElements::tailW:
-                    SDL_RenderCopy(renderer, snake->snakeTexture, &snake->snakePartsRect[grid[row][col]], &destR);
-                    break;
-                default:
-                    break;
+            SDL_Rect destR = {col*c_CELLSIZE + c_BORDERTHICKNESS, row*c_CELLSIZE + c_BORDERTHICKNESS, 
+                              c_CELLSIZE, c_CELLSIZE};
+            if(grid[row][col] == Grid::GridElements::empty){
+                SDL_SetRenderDrawColor(renderer, c_bgColor.r, c_bgColor.g, c_bgColor.b, c_bgColor.a);
+                SDL_RenderFillRect(renderer, &destR);
             }
         }
     }
 }
 
 void Grid::clearGrid(){
-    // Loop initialize the grid
+    // Clear snake and food from grid, retain walls so only need to initialize once.
     for(int row = 0; row < rows; ++row){
         for(int col = 0; col < cols; ++col){
-            if(row == 0 || row == rows - 1 || col == 0 || col == cols - 1){
-                grid[row][col] = GridElements::wall;
+            if(grid[row][col] == Grid::GridElements::wall){
+                continue;
             } else{
-                grid[row][col] = GridElements::empty;
+                grid[row][col] = Grid::GridElements::empty;
             }
         }
     }
 }
 
-bool Grid::updateGrid(int x, int y, GridElements element)
+void Grid::updateGrid(int x, int y, Grid::GridElements element)
 {
-    if(y < rows && x < cols)
+    if(!(y < rows && x < cols))
     {
-        grid[y][x] = element;
-        return true;
-    } 
-    return false;
+        SDL_Log("Trying to update grid out of bounds.");
+    }
+
+    if(grid[y][x] != Grid::GridElements::empty){
+        collide = true;
+    }
+
+    grid[y][x] = element;
+}
+
+Grid::GridElements Grid::get(int x, int y)
+{
+    return grid[y][x];
 }

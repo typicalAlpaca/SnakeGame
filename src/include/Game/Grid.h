@@ -4,44 +4,43 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
+#include <utility>
 
 #include "config.h"
 
 // Forward declaration of Snake class to remedy circular dependency.
 class Snake;
+class Walls;
+class Food;
 
 
 class Grid{
 
 public:
-    enum GridElements {
-        bodyNE, bodyNW, bodyNS, bodySE, bodySW, bodyEW, // Snake body parts
-        headN, headS, headW, headE,                                 // Snake head parts
-        tailN, tailS, tailW, tailE,                                 // Snake tail parts
-        empty, wall, food
-    };
+    enum GridElements {empty, wall, snake, food};
 
 public:
     Grid();
     ~Grid();
 
     void init();
-    void update(Snake *snake);
-    void render(SDL_Renderer *renderer, Snake *snake);
+    void update(Snake *snake, Food *food);
+    void render(SDL_Renderer *renderer);
     
     void clearGrid();
-    bool updateGrid(int x, int y, GridElements element);
+    void updateGrid(int x, int y, GridElements element);
+    GridElements get(int x, int y);
 
 public:
-    const int winW = c_WINDOWWIDTH;
-    const int winH = c_WINDOWHEIGHT;
-    const int cellSize = c_CELLSIZE;
-    const int borderWidth = c_BORDERTHICKNESS;
     static const int rows = c_WINDOWHEIGHT / c_CELLSIZE;
     static const int cols = c_WINDOWWIDTH / c_CELLSIZE;
-    
+    bool collide = false;
+    std::pair<int, int> walls[rows*cols];
+    int available = rows*cols;
+
 private:
-    int grid[rows][cols];
+    GridElements grid[rows][cols];
+
 };
 
 #endif // GRID_H
