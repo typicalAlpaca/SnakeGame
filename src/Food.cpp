@@ -34,8 +34,8 @@ void Food::update(Grid *grid, Snake *snake)
 
 void Food::render(SDL_Renderer *renderer)
 {
-    SDL_Rect destR = {coord.first*c_CELLSIZE + c_BORDERTHICKNESS, 
-                      coord.second*c_CELLSIZE + c_BORDERTHICKNESS, 
+    SDL_Rect destR = {coord.first*c_CELLSIZE + c_BORDERTHICKNESS_LEFT, 
+                      coord.second*c_CELLSIZE + c_BORDERTHICKNESS_TOP, 
                       c_CELLSIZE, c_CELLSIZE};
     SDL_RenderCopy(renderer, foodTexture, &foodRect, &destR);
 }
@@ -53,11 +53,12 @@ void Food::getNewFood(Grid *grid, Snake *snake, Walls *walls)
     for(int row = 0; row < Grid::rows; ++row){
         for(int col = 0; col < Grid::cols; ++col){
             if(grid->get(col, row) == Grid::GridElements::empty){
-                n--;
-            }
-            if(n == 0){
-                coord = {col, row};
-                return;
+                if(n==0){
+                    coord = {col, row};
+                    return;
+                } else{
+                    n--;
+                }
             }
         }
     }

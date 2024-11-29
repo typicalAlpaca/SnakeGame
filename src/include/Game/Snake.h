@@ -52,6 +52,7 @@ public:
 private:
     int SS_CELL_W;
     int SS_CELL_H;
+    bool initialized = false;
 
     void initSnakeSpriteSheet();
     void goNorth(Node*& head);

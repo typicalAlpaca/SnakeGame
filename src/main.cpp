@@ -9,7 +9,9 @@ const int FRAME_DELAY = 1000 / c_FPS;
 Uint32 frameStart;
 int frameTime;
 int frames = 0;
-int tickFPS = c_FPS / c_ticksPerSec;
+
+int baseTPS = c_FPS / c_TPS;
+int tickFPS = baseTPS;
 
 int main(int argc, char* argv[])
 {
@@ -24,8 +26,13 @@ int main(int argc, char* argv[])
         if(frames%tickFPS == 0){
             game->update();
             game->render();
-        }
+            game->doChecks();
 
+            // Every increment of score by 5 increases TPS by 1
+            tickFPS = baseTPS + game->getScore()/5;
+            tickFPS = tickFPS > c_MAXTPS ? c_MAXTPS : tickFPS ;
+        }
+        
         // Maintains FPS at c_FPS
         while(SDL_GetTicks() - frameStart < FRAME_DELAY)
         {

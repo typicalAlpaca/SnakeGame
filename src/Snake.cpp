@@ -49,20 +49,21 @@ void Snake::initSnakeSpriteSheet()
 void Snake::init(SDL_Renderer *renderer)
 {
     // Initialize head and tail nodes
-    head = new Node({Grid::rows/2, Grid::cols/2}, SnakeParts::headE, Direction::E);
-    tail = new Node({Grid::rows/2-2, Grid::cols/2}, SnakeParts::tailE, Direction::E);
-    tail->next = new Node({Grid::rows/2-1, Grid::cols/2}, SnakeParts::bodyEW, Direction::E, head);
+    head = new Node({Grid::cols/2, Grid::rows/2}, SnakeParts::headE, Direction::E);
+    tail = new Node({Grid::cols/2-2, Grid::rows/2}, SnakeParts::tailE, Direction::E);
+    tail->next = new Node({Grid::cols/2-1, Grid::rows/2}, SnakeParts::bodyEW, Direction::E, head);
     
-    initSnakeSpriteSheet();
+    if(!initialized){
+        initialized = true;
+        initSnakeSpriteSheet();
 
-    SDL_Surface* tempSurface = IMG_Load(c_SNAKEDIR);
-    SDL_SetColorKey(tempSurface, SDL_TRUE, SDL_MapRGB(tempSurface->format, 255, 255, 255));
-    snakeTexture = SDL_CreateTextureFromSurface(renderer, tempSurface);
-    SDL_FreeSurface(tempSurface);
-    SDL_Log("Snake initialized");
+        SDL_Surface *tempSurface = IMG_Load(c_SNAKEDIR);
+        SDL_SetColorKey(tempSurface, SDL_TRUE, SDL_MapRGB(tempSurface->format, 255, 255, 255));
+        snakeTexture = SDL_CreateTextureFromSurface(renderer, tempSurface);
+        SDL_FreeSurface(tempSurface);
+        SDL_Log("Snake initialized");
+    }
 }
-
-enum Direction{N, S, E, W};
 
 void Snake::update(Direction dir, bool& grow)
 {
@@ -85,7 +86,7 @@ void Snake::update(Direction dir, bool& grow)
             return;
     }
 
-    // Move tail node if food has not been consumed
+    // Move tail node if food has not been consumed, if not don't update tail node to allow it to "grow" by one
     if(grow) {
         grow = false;
     } else {
@@ -98,8 +99,8 @@ void Snake::render(SDL_Renderer* renderer)
 {
     Node* temp = tail;
     while(temp){
-        SDL_Rect destR = {temp->coord.first*c_CELLSIZE + c_BORDERTHICKNESS, 
-                          temp->coord.second*c_CELLSIZE + c_BORDERTHICKNESS, 
+        SDL_Rect destR = {temp->coord.first*c_CELLSIZE + c_BORDERTHICKNESS_LEFT, 
+                          temp->coord.second*c_CELLSIZE + c_BORDERTHICKNESS_TOP, 
                           c_CELLSIZE, c_CELLSIZE};
         SDL_RenderCopy(renderer, snakeTexture, &snakePartsRect[temp->part], &destR);
         temp = temp->next;
@@ -119,7 +120,6 @@ void Snake::populateGrid(Grid *grid)
         temp = temp->next;
     }
 }
-
 
 void Snake::goNorth(Node*& head){
     if(head->part == SnakeParts::headS)

@@ -28,8 +28,8 @@ void Walls::render(SDL_Renderer *renderer)
     SDL_SetRenderDrawColor(renderer, c_wallColor.r, c_wallColor.g, c_wallColor.b, c_wallColor.a);       
                     
     for(std::pair<int, int> wall : walls){
-        SDL_Rect destR = {wall.first*c_CELLSIZE + c_BORDERTHICKNESS, 
-                          wall.second*c_CELLSIZE + c_BORDERTHICKNESS, 
+        SDL_Rect destR = {wall.first*c_CELLSIZE + c_BORDERTHICKNESS_LEFT, 
+                          wall.second*c_CELLSIZE + c_BORDERTHICKNESS_TOP, 
                           c_CELLSIZE, c_CELLSIZE};
         SDL_RenderFillRect(renderer, &destR);
     }    

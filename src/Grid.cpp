@@ -20,6 +20,7 @@ Grid::~Grid()
 void Grid::init()
 {
     clearGrid();
+    collide = false;
 }
 
 void Grid::update(Snake *snake, Food *food)
@@ -34,7 +35,7 @@ void Grid::render(SDL_Renderer *renderer)
     // Render empty cells of the grid only
     for(int row = 0; row < rows; ++row){
         for(int col = 0; col < cols; ++col){
-            SDL_Rect destR = {col*c_CELLSIZE + c_BORDERTHICKNESS, row*c_CELLSIZE + c_BORDERTHICKNESS, 
+            SDL_Rect destR = {col*c_CELLSIZE + c_BORDERTHICKNESS_LEFT, row*c_CELLSIZE + c_BORDERTHICKNESS_TOP, 
                               c_CELLSIZE, c_CELLSIZE};
             if(grid[row][col] == Grid::GridElements::empty){
                 SDL_SetRenderDrawColor(renderer, c_bgColor.r, c_bgColor.g, c_bgColor.b, c_bgColor.a);
@@ -64,7 +65,7 @@ void Grid::updateGrid(int x, int y, Grid::GridElements element)
         SDL_Log("Trying to update grid out of bounds.");
     }
 
-    if(grid[y][x] != Grid::GridElements::empty){
+    if(grid[y][x] != Grid::GridElements::empty && element != Grid::GridElements::wall){
         collide = true;
     }
 
